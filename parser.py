@@ -7,8 +7,8 @@ import telebot
 import os
 from flask import Flask
 
-# token = '***REMOVED***'
 token = '***REMOVED***'
+# token = '***REMOVED***'
 
 bot = telebot.TeleBot(token)
 train_number = 0
