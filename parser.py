@@ -8,17 +8,16 @@ import cssselect
 import lxml.html
 import requests
 import telebot
+from telebot import types
 from flask import Flask
-import config
+from decouple import config
 
-TOKEN = config.token
-
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(config('TOKEN'))
 # to set train after setting date
 LAST_DATE = -1
 SLEEP_TIME = 60
 # routes url
-URLS = [{"from": "Москва", "to": "Минск", "date": "2023-04-25"}]
+URLS = [{"from": "Минск", "to": "Орша", "date": "2024-07-04"}]
 # waiting list
 QUEUE = []
 # debug message mod
@@ -40,8 +39,12 @@ def debug_print(string):
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    # hideboard = telebot.types.ReplyKeyboardRemove()
-    bot.send_message(message.chat.id, 'Выберите маршрут:')
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text='Наш сайт', url='https://habr.com/ru/all/')
+    btn1 = types.InlineKeyboardButton(text='Лист ожидания', callback_data='waiting_list')
+    markup.add(btn1)
+    bot.send_message(message.chat.id, 'Выберите действие:', reply_markup = markup)
+
     routes_list = ""
     for number, url in enumerate(URLS, start=1):
         routes_list += f'{number}: {url["from"]} - {url["to"]} {url["date"]}\n\n'
