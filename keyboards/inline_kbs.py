@@ -27,6 +27,14 @@ def choose_train_kb(items=[]):
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
+def waiting_list_kb(items=[]):
+    inline_kb_list = [
+        [InlineKeyboardButton(text=item, callback_data=f'waiting_{i}')] for i, item in enumerate(items)
+    ]
+    inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='id_main')])
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+
+
 def validate_train_kb():
     inline_kb_list = [
         [InlineKeyboardButton(text="🔍 Начать поиск", callback_data='start_search')],

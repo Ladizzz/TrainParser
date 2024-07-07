@@ -1,10 +1,11 @@
 import asyncio
 from create_bot import bot, dp, scheduler, admins
 from handlers.error import error_router
+from handlers.list import list_router
 from handlers.start import start_router
 from handlers.search import search_router
 # from work_time.time_func import send_time_msg
-from aiogram.types import BotCommand, BotCommandScopeDefault
+from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
 
 
 # Функция, которая настроит командное меню (дефолтное для всех пользователей)
@@ -32,12 +33,20 @@ async def stop_bot():
         pass
 
 
+@dp.errors()
+async def errors_handler(event: ErrorEvent):
+    print(f"Error caught: {event.exception} while processing {event.update}")
+    print(event.exception)
+    # logger.error("Error caught: %r while processing %r", event.exception, event.update)
+
+
 async def main():
     # scheduler.add_job(send_time_msg, 'interval', seconds=10)
     # scheduler.start()
     # регистрация роутеров
     dp.include_router(start_router)
     dp.include_router(search_router)
+    dp.include_router(list_router)
     # dp.include_router(admin_router)
     dp.include_router(error_router)
 

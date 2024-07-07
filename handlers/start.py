@@ -26,12 +26,6 @@ async def cmd_home(call: CallbackQuery, state: FSMContext):
     await call.answer()
 
 
-@start_router.callback_query(F.data == 'waiting_list')
-async def get_inline_btn_link(call: CallbackQuery):
-    await call.message.answer('Лист ожидания', reply_markup=back_home_kb())
-    await call.answer()
-
-
 @start_router.callback_query(F.data == 'admin_panel')
 async def get_inline_btn_link(call: CallbackQuery):
     await call.message.answer('Администрирование', reply_markup=back_home_kb())

@@ -26,3 +26,5 @@ bot = Bot(token=config('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMo
 
 # инициируем объект бота
 dp = Dispatcher(storage=MemoryStorage())
+
+user_dict: dict[int, dict[str, str | int | bool]] = {}

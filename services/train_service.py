@@ -5,12 +5,12 @@ import requests
 from aiogram.client.session import aiohttp
 
 
-async def get_trains(city_from, city_to, date):
+async def get_trains(station_from, station_to, date):
     # page - full code
     result = []
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://pass.rw.by/ru/route/?from={city_from}&to={city_to}&date={date}') as response:
+            async with session.get(f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}') as response:
                 # return await response.json()
                 # TODO add user-agent
                 # debug_print(f'{page}')

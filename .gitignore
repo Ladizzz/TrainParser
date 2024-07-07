@@ -1,5 +1,7 @@
-/venv/
-/boiling-ridge-34241/
 .env
-.idea
-__pycache__
+
+.mypy_cache/
+.vscode/
+venv/
+__pycache__/
+.idea/
