@@ -5,5 +5,5 @@ error_router = Router()
 
 
 @error_router.message()
-async def cmd_start(message: Message):
+async def error(message: Message):
     await message.answer(f'Проверьте правильность ввода')

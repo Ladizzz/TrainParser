@@ -1,5 +1,6 @@
 import asyncio
 from create_bot import bot, dp, scheduler, admins
+from handlers.administration import admin_router
 from handlers.error import error_router
 from handlers.list import list_router
 from handlers.start import start_router
@@ -49,7 +50,7 @@ async def main():
     dp.include_router(start_router)
     dp.include_router(search_router)
     dp.include_router(list_router)
-    # dp.include_router(admin_router)
+    dp.include_router(admin_router)
     dp.include_router(error_router)
 
     # регистрация функций

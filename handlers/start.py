@@ -2,11 +2,10 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from keyboards.inline_kbs import back_home_kb
+from keyboards.inline_kbs import go_home_kb
 from keyboards.inline_kbs import start_kb
 from aiogram.types import CallbackQuery
 from aiogram import html
-
 
 start_router = Router()
 
@@ -18,16 +17,16 @@ async def cmd_start(message: Message, state: FSMContext):
                          reply_markup=start_kb(message.from_user.id))
 
 
-@start_router.callback_query(F.data == 'back_home')
-async def cmd_home(call: CallbackQuery, state: FSMContext):
+@start_router.callback_query(F.data == 'go_home')
+async def cmd_home_answer(call: CallbackQuery, state: FSMContext):
     await state.clear()
     await call.message.answer(f'Добро пожаловать, {call.from_user.full_name}',
-                         reply_markup=start_kb(call.from_user.id))
+                              reply_markup=start_kb(call.from_user.id))
     await call.answer()
 
 
-@start_router.callback_query(F.data == 'admin_panel')
-async def get_inline_btn_link(call: CallbackQuery):
-    await call.message.answer('Администрирование', reply_markup=back_home_kb())
+@start_router.callback_query(F.data == 'back_home')
+async def cmd_home_edit_text(call: CallbackQuery):
+    await call.message.edit_text(f'Добро пожаловать, {call.from_user.full_name}',
+                              reply_markup=start_kb(call.from_user.id))
     await call.answer()
-

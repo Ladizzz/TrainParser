@@ -4,7 +4,7 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.chat_action import ChatActionSender
 from create_bot import bot, user_dict
-from keyboards.inline_kbs import back_home_kb, validate_train_kb
+from keyboards.inline_kbs import go_home_kb, validate_train_kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
 from services.train_service import get_trains
@@ -25,7 +25,7 @@ search_router = Router()
 @search_router.callback_query(F.data == 'new_search')
 async def new_search(call: CallbackQuery, state: FSMContext):
     # Устанавливаем пользователю состояние "выбирает название"
-    await call.message.answer('Введите пункт отправления', reply_markup=back_home_kb())
+    await call.message.answer('Введите пункт отправления', reply_markup=go_home_kb())
     await state.set_state(TrainSearch.choosing_station_from)
     await call.answer()
 
@@ -36,7 +36,7 @@ async def new_search(call: CallbackQuery, state: FSMContext):
 async def choose_station_to(message: Message, state: FSMContext):
     await state.update_data(station_from=message.text)
     await message.answer(
-        text="Введите пункт назначения", reply_markup=back_home_kb()
+        text="Введите пункт назначения", reply_markup=go_home_kb()
     )
     await state.set_state(TrainSearch.choosing_station_to)
 
@@ -48,7 +48,7 @@ async def choose_date(message: Message, state: FSMContext):
     await state.update_data(station_to=message.text)
     await message.answer(
         text="Введите дату поездки в формате YYYY-MM-DD",
-        reply_markup=back_home_kb()
+        reply_markup=go_home_kb()
     )
     await state.set_state(TrainSearch.choosing_date)
 
@@ -77,7 +77,7 @@ async def validate_search(message: Message, state: FSMContext):
                         half = len(formatted_list) // 2
                         await message.answer(text="Доступные поезда:\n\n" + "\n\n".join(formatted_list[:half]))
                         await message.answer(text="\n\n".join(formatted_list[half:]))
-                    await message.answer(text="Введите порядковый номер поезда", reply_markup=back_home_kb())
+                    await message.answer(text="Введите порядковый номер поезда", reply_markup=go_home_kb())
                     await state.set_state(TrainSearch.validating_search)
                 else:
                     await message.answer(text="Нет доступных поездов. Проверьте правильность ввода")
@@ -122,6 +122,6 @@ async def start_search(call: CallbackQuery, state: FSMContext):
     # Используем setdefault для добавления данных
     user_dict.setdefault(call.from_user.id, []).append(data)
     await call.message.edit_reply_markup()
-    await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=back_home_kb())
+    await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=go_home_kb())
     await state.clear()
     await call.answer()

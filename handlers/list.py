@@ -1,33 +1,24 @@
 from aiogram import Router, F
-from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from create_bot import user_dict
-from keyboards.inline_kbs import back_home_kb, waiting_list_kb, search_details_kb, search_details_back_kb
+from keyboards.inline_kbs import waiting_list_kb, search_details_kb, search_details_back_kb, back_home_kb
 
 list_router = Router()
 
 
-@list_router.callback_query(F.data.startswith('waiting_list'))
+@list_router.callback_query(F.data == 'waiting_list')
 async def get_waiting_list(call: CallbackQuery):
-    ans_type_edit = call.data.replace('waiting_list', '')
     if call.from_user.id in user_dict and user_dict[call.from_user.id]:
         # print(user_dict[call.from_user.id])
         formatted_list = [
             f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}"
             for request in user_dict[call.from_user.id]
         ]
-        if ans_type_edit:
-            await call.message.edit_text(f'Лист ожидания', reply_markup=waiting_list_kb(formatted_list))
-        else:
-            await call.message.answer(f'Лист ожидания', reply_markup=waiting_list_kb(formatted_list))
+        await call.message.edit_text(f'Лист ожидания', reply_markup=waiting_list_kb(formatted_list))
     else:
-        if ans_type_edit:
-            await call.message.edit_text(
-                text='Лист ожидания пуст', reply_markup=back_home_kb())
-        else:
-            await call.message.answer(
-                text='Лист ожидания пуст', reply_markup=back_home_kb())
+        await call.message.edit_text(
+            text='Лист ожидания пуст', reply_markup=back_home_kb())
     await call.answer()
 
 
