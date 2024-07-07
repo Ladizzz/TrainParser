@@ -18,13 +18,10 @@ logger = logging.getLogger(__name__)
 
 scheduler = AsyncIOScheduler(timezone='Europe/Minsk')
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
 # инициируем объект бота, передавая ему parse_mode=ParseMode.HTML по умолчанию
 bot = Bot(token=config('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 # инициируем объект бота
 dp = Dispatcher(storage=MemoryStorage())
 
-user_dict: dict[int, dict[str, str | int | bool]] = {}
+user_dict: dict[int, list[{}]] = {}

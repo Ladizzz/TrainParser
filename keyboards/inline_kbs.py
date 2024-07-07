@@ -19,19 +19,25 @@ def back_home_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def choose_train_kb(items=[]):
+def search_details_kb(train_id):
     inline_kb_list = [
-        [InlineKeyboardButton(text=item, callback_data=f'train_{i}')] for i, item in enumerate(items)
+        [InlineKeyboardButton(text="❌ Удалить", callback_data=f'delete_{train_id}')],
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data='waiting_list_back')]
     ]
-    inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='id_main')])
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+
+def search_details_back_kb():
+    inline_kb_list = [
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data='waiting_list_back')]
+    ]
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
 def waiting_list_kb(items=[]):
     inline_kb_list = [
-        [InlineKeyboardButton(text=item, callback_data=f'waiting_{i}')] for i, item in enumerate(items)
+        [InlineKeyboardButton(text=item, callback_data=f'train_{i}')] for i, item in enumerate(items)
     ]
-    inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='id_main')])
+    inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='back_home')])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 

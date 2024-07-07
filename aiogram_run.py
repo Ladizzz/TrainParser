@@ -35,6 +35,8 @@ async def stop_bot():
 
 @dp.errors()
 async def errors_handler(event: ErrorEvent):
+    if event.update.callback_query:
+        await event.update.callback_query.answer(text="Ошибка сервера")
     print(f"Error caught: {event.exception} while processing {event.update}")
     print(event.exception)
     # logger.error("Error caught: %r while processing %r", event.exception, event.update)

@@ -4,7 +4,7 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.chat_action import ChatActionSender
 from create_bot import bot, user_dict
-from keyboards.inline_kbs import back_home_kb, choose_train_kb, validate_train_kb
+from keyboards.inline_kbs import back_home_kb, validate_train_kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
 from services.train_service import get_trains
@@ -47,7 +47,7 @@ async def choose_station_to(message: Message, state: FSMContext):
 async def choose_date(message: Message, state: FSMContext):
     await state.update_data(station_to=message.text)
     await message.answer(
-        text="Теперь, введите дату поездки в формате YYYY-MM-DD",
+        text="Введите дату поездки в формате YYYY-MM-DD",
         reply_markup=back_home_kb()
     )
     await state.set_state(TrainSearch.choosing_date)
@@ -99,7 +99,7 @@ async def validate_search(message: Message, state: FSMContext):
         search_data = await state.get_data()
         train_data = search_data['trains_list'][train_index - 1]
         await state.update_data(train_data=train_data)
-        await message.answer(text="Проверьте введенные данные:\n"
+        await message.answer(text="Проверьте введенные данные:\n\n"
                                   f"Станиция отправления: <b>{search_data['station_from']}</b>\n"
                                   f"Станиция назначения: <b>{search_data['station_to']}</b>\n"
                                   f"Дата: <b>{search_data['date']}</b>\n"
@@ -117,7 +117,11 @@ async def validate_search(message: Message, state: FSMContext):
 
 @search_router.callback_query(F.data == 'start_search')
 async def start_search(call: CallbackQuery, state: FSMContext):
-    user_dict[call.from_user.id] = await state.get_data()
+    # Получаем данные из состояния
+    data = await state.get_data()
+    # Используем setdefault для добавления данных
+    user_dict.setdefault(call.from_user.id, []).append(data)
+    await call.message.edit_reply_markup()
     await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=back_home_kb())
     await state.clear()
     await call.answer()
