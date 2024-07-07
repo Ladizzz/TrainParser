@@ -8,6 +8,8 @@ from handlers.search import search_router
 # from work_time.time_func import send_time_msg
 from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
 
+from utils.update_queue import update_queue
+
 
 # Функция, которая настроит командное меню (дефолтное для всех пользователей)
 async def set_commands():
@@ -44,8 +46,8 @@ async def errors_handler(event: ErrorEvent):
 
 
 async def main():
-    # scheduler.add_job(send_time_msg, 'interval', seconds=10)
-    # scheduler.start()
+    scheduler.add_job(update_queue, 'interval', seconds=60)
+    scheduler.start()
     # регистрация роутеров
     dp.include_router(start_router)
     dp.include_router(search_router)
