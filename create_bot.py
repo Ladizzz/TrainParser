@@ -24,4 +24,4 @@ bot = Bot(token=config('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMo
 # инициируем объект бота
 dp = Dispatcher(storage=MemoryStorage())
 
-user_dict: dict[int, list[{}]] = {}
+user_requests_queue: dict[int, list[{}]] = {}

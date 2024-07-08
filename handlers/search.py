@@ -1,9 +1,8 @@
-import asyncio
-
+from datetime import datetime
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.chat_action import ChatActionSender
-from create_bot import bot, user_dict
+from create_bot import bot, user_requests_queue
 from keyboards.inline_kbs import go_home_kb, validate_train_kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
@@ -119,8 +118,10 @@ async def validate_search(message: Message, state: FSMContext):
 async def start_search(call: CallbackQuery, state: FSMContext):
     # Получаем данные из состояния
     data = await state.get_data()
+    data['status'] = 'active'
+    data['timestamp'] = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
     # Используем setdefault для добавления данных
-    user_dict.setdefault(call.from_user.id, []).append(data)
+    user_requests_queue.setdefault(call.from_user.id, []).append(data)
     await call.message.edit_reply_markup()
     await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=go_home_kb())
     await state.clear()
