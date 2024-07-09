@@ -2,7 +2,7 @@ from datetime import datetime
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.chat_action import ChatActionSender
-from create_bot import bot, user_requests_queue, db
+from create_bot import bot, db
 from keyboards.inline_kbs import go_home_kb, validate_train_kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
@@ -120,9 +120,10 @@ async def start_search(call: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     data['chat_id'] = call.from_user.id
     data['status'] = 'active'
-    # data['timestamp'] = f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data['created_at'] = f'{timestamp}'
+    data['updated_at'] = f'{timestamp}'
     # Используем setdefault для добавления данных
-    user_requests_queue.setdefault(call.from_user.id, []).append(data)
     await db["requests"].insert_one(data)
     await call.message.edit_reply_markup()
     await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=go_home_kb())

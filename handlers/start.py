@@ -15,7 +15,11 @@ start_router = Router()
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
-    await db["users"].insert_one(dict(message.from_user))
+    await db["users"].update_one(
+        {'id': message.from_user.id},
+        {'$setOnInsert': dict(message.from_user)},
+        upsert=True
+    )
     await message.answer(f'Добро пожаловать, {html.quote(message.from_user.full_name)}',
                          reply_markup=start_kb(message.from_user.id))
 

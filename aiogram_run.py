@@ -5,7 +5,6 @@ from handlers.error import error_router
 from handlers.list import list_router
 from handlers.start import start_router
 from handlers.search import search_router
-# from work_time.time_func import send_time_msg
 from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
 
 from utils.update_queue import update_queue

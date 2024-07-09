@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.mongo import MongoStorage
 from decouple import config
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -22,10 +23,9 @@ scheduler = AsyncIOScheduler(timezone='Europe/Minsk')
 # инициируем объект бота, передавая ему parse_mode=ParseMode.HTML по умолчанию
 bot = Bot(token=config('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
-# инициируем объект бота
-dp = Dispatcher(storage=MemoryStorage())
-
 client = AsyncIOMotorClient(config('MONGO_URL'))
 db = client[config('MONGO_NAME')]
 
-user_requests_queue: dict[int, list[{}]] = {}
+# инициируем объект бота
+# dp = Dispatcher(storage=MemoryStorage())
+dp = Dispatcher(storage=MongoStorage(client))

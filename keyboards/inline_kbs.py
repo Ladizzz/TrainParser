@@ -41,9 +41,9 @@ def search_details_back_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def waiting_list_kb(items=[]):
+def waiting_list_kb(requests=[]):
     inline_kb_list = [
-        [InlineKeyboardButton(text=item, callback_data=f'train_{i}')] for i, item in enumerate(items)
+        [InlineKeyboardButton(text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}", callback_data=f'train_{request["_id"]}')] for request in requests
     ]
     inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='go_home')])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
