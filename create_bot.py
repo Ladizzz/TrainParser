@@ -5,6 +5,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from decouple import config
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # получаем список администраторов из .env
 admins = [int(admin_id) for admin_id in config('ADMINS').split(',')]
@@ -23,5 +24,8 @@ bot = Bot(token=config('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMo
 
 # инициируем объект бота
 dp = Dispatcher(storage=MemoryStorage())
+
+client = AsyncIOMotorClient(config('MONGO_URL'))
+db = client[config('MONGO_NAME')]
 
 user_requests_queue: dict[int, list[{}]] = {}

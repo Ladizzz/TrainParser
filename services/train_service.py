@@ -39,10 +39,10 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
                             # кол-во
                             ticket_free_raw = ticket_raw.cssselect('a.sch-table__t-quant')
                             if ticket_free_raw[0].text_content() is not None:
-                                ticket['available_seats'] = ticket_free_raw[0].text_content()
+                                ticket['available_seats'] = ticket_free_raw[0].text_content().strip()
                             # стоимость
                             ticket_prices_raw = ticket_raw.cssselect('span.ticket-cost')
-                            ticket['prices'] = ticket_prices_raw[0].text_content()
+                            ticket['prices'] = ticket_prices_raw[0].text_content().strip()
                             tickets.append(ticket)
 
                     train_info = {'index': index, 'train_number': train_number, 'train_name': train_name, 'train_departure': train_departure,

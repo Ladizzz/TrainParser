@@ -2,6 +2,8 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+
+from create_bot import db
 from keyboards.inline_kbs import go_home_kb
 from keyboards.inline_kbs import start_kb
 from aiogram.types import CallbackQuery
@@ -13,6 +15,7 @@ start_router = Router()
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
+    await db["users"].insert_one(dict(message.from_user))
     await message.answer(f'Добро пожаловать, {html.quote(message.from_user.full_name)}',
                          reply_markup=start_kb(message.from_user.id))
 
