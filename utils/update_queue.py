@@ -35,5 +35,7 @@ async def update_queue():
                 logger.info(f"Trying to send message...")
                 await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{ans}", parse_mode=ParseMode.HTML)
         except Exception as e:
-            logger.error("Exception while updating queue")
-            await bot.send_message(chat_id=request['chat_id'], text=f"Ошибка при поиске по запросу")
+            logger.error(f"Exception while updating queue: {e}")
+            user = await db["users"].find_one({"id": request['chat_id']})
+            if user['debug_mode']:
+                await bot.send_message(chat_id=request['chat_id'], text=f"Ошибка при поиске по запросу: {e}")

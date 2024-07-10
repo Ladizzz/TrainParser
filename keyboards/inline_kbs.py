@@ -48,7 +48,9 @@ def search_details_back_kb():
 
 def waiting_list_kb(requests=[]):
     inline_kb_list = [
-        [InlineKeyboardButton(text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}", callback_data=f'request_{request["_id"]}')] for request in requests
+        [InlineKeyboardButton(
+            text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}",
+            callback_data=f'request_{request["_id"]}')] for request in requests
     ]
     inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='go_home')])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
@@ -62,10 +64,17 @@ def validate_train_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def administration_kb():
+def administration_kb(debug_mode=False):
     inline_kb_list = [
-        [InlineKeyboardButton(text="⚙️ Режим отладки", callback_data=f'debug_mode')],
-        [InlineKeyboardButton(text="⏳ Интервал поиска", callback_data=f'search_interval')],
-        [InlineKeyboardButton(text="⬅️ Назад", callback_data='back_home')]
     ]
+
+    if not debug_mode:
+        inline_kb_list.append([InlineKeyboardButton(text="⚙️ Включить режим отладки", callback_data=f'debug_mode_on')])
+    else:
+        inline_kb_list.append(
+            [InlineKeyboardButton(text="⚙️ Отключить режим отладки", callback_data=f'debug_mode_off')])
+
+    # inline_kb_list.append([InlineKeyboardButton(text="⏳ Интервал поиска", callback_data=f'search_interval')])
+    inline_kb_list.append([InlineKeyboardButton(text="⬅️ Назад", callback_data='back_home')])
+
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)

@@ -2,7 +2,7 @@ import logging
 from aiogram import Router
 from aiogram.types import Message, ErrorEvent
 
-from create_bot import dp
+from create_bot import dp, db
 
 error_router = Router()
 
@@ -18,5 +18,8 @@ async def errors_handler(event: ErrorEvent):
     if event.update.callback_query:
         await event.update.callback_query.answer(text="Ошибка сервера")
     if event.update.message:
-        await event.update.message.answer(f"Ошибка сервера {event.exception}", parse_mode=None)
+        await event.update.message.answer(f"Ошибка сервера")
+        user = await db["users"].find_one({"id": event.update.message.from_user.id})
+        if user['debug_mode']:
+            await event.update.message.answer(f"{event.exception}")
     logger.error("Error caught: %r while processing %r", event.exception, event.update)

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from aiogram import Router, F
 from aiogram.enums import ParseMode
@@ -88,14 +89,17 @@ async def validate_search(message: Message, state: FSMContext):
                 await message.answer(text="Произошла ошибка при получении")
                 await state.clear()
     except Exception as error:
-        # todo how to global except?
         await message.answer(text="Произошла ошибка")
+        user = await db["users"].find_one({"id": message.from_user.id})
+        if user['debug_mode']:
+            await message.answer(text=f"{error}")
 
 
 @search_router.message(
     TrainSearch.validating_search
 )
 async def validate_search(message: Message, state: FSMContext):
+    logger = logging.getLogger("validate_search")
     try:
         train_index = int(message.text)
         search_data = await state.get_data()
@@ -114,7 +118,7 @@ async def validate_search(message: Message, state: FSMContext):
                              )
         await state.update_data(trains_list=None)
     except Exception as error:
-        print(error)
+        logger.error(error)
         await message.answer(text="Неверный номер")
 
 
