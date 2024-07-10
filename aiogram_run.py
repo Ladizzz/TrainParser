@@ -6,7 +6,6 @@ from handlers.list import list_router
 from handlers.start import start_router
 from handlers.search import search_router
 from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
-
 from utils.update_queue import update_queue
 
 
@@ -33,15 +32,6 @@ async def stop_bot():
             await bot.send_message(admin_id, 'Бот остановлен')
     except:
         pass
-
-
-@dp.errors()
-async def errors_handler(event: ErrorEvent):
-    if event.update.callback_query:
-        await event.update.callback_query.answer(text="Ошибка сервера")
-    print(f"Error caught: {event.exception} while processing {event.update}")
-    print(event.exception)
-    # logger.error("Error caught: %r while processing %r", event.exception, event.update)
 
 
 async def main():

@@ -1,5 +1,8 @@
+from datetime import datetime
 from aiogram import Router, F
+from aiogram.enums import ParseMode
 from aiogram.types import CallbackQuery
+from aiogram import html
 from bson import ObjectId
 
 from create_bot import db, logger
@@ -21,23 +24,35 @@ async def get_waiting_list(call: CallbackQuery):
     await call.answer()
 
 
+@list_router.callback_query(F.data.startswith('restart_'))
+async def restart_search(call: CallbackQuery):
+    train_id = call.data.replace('restart_', '')
+    await db['requests'].update_one(
+        {'_id': train_id},
+        {'$set': {'status': 'active', 'updated_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+    )
+
+    await call.answer()
+
+
 @list_router.callback_query(F.data.startswith('train_'))
 async def get_train(call: CallbackQuery):
     train_id = call.data.replace('train_', '')
     request = await db["requests"].find_one({"_id": ObjectId(train_id)})
     await call.message.edit_text(
         text="Детали о поиске:\n\n"
-             f"Станиция отправления: <b>{request['station_from']}</b>\n"
-             f"Станиция назначения: <b>{request['station_to']}</b>\n"
-             f"Дата: <b>{request['date']}</b>\n"
+             f"Станиция отправления: <b>{html.quote(request['station_from'])}</b>\n"
+             f"Станиция назначения: <b>{html.quote(request['station_to'])}</b>\n"
+             f"Дата: <b>{html.quote(request['date'])}</b>\n"
              f"Выбранный поезд: <b>{request['train_data']['train_number']} {request['train_data']['train_name']}</b>\n"
              f"Отправление: <b>{request['train_data']['train_departure']}</b>\n"
              f"Прибытие: <b>{request['train_data']['train_arrival']}</b>\n\n"
-             f"Состояние: <b>{status_mapping.get(request['status'], 'Не определено')}</b>\n"
+             f"Состояние: <b>{html.quote(status_mapping.get(request['status'], 'Не определено'))}</b>\n"
              f"Дата создания: <b>{request.get('created_at', None)}</b>\n"
              f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n"
         ,
-        reply_markup=search_details_kb(train_id)
+        reply_markup=search_details_kb(train_id, request['status']),
+        parse_mode=ParseMode.HTML
     )
     await call.answer()
 

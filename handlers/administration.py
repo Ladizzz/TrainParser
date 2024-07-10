@@ -10,3 +10,9 @@ admin_router = Router()
 async def administration(call: CallbackQuery):
     await call.message.edit_text('Администрирование', reply_markup=administration_kb())
     await call.answer()
+
+
+# @admin_router.callback_query(F.data == 'debug_mode')
+# async def administration(call: CallbackQuery):
+#     await call.message.edit_text('Администрирование', reply_markup=administration_kb())
+#     await call.answer()

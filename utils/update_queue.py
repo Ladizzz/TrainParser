@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-
+from aiogram.enums import ParseMode
 from create_bot import bot, db
 from services.train_service import get_trains
 
@@ -33,7 +33,7 @@ async def update_queue():
                     if "prices" in ticket:
                         ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
                 logger.info(f"Trying to send message... ({ans})")
-                await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{ans}")
+                await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{ans}", parse_mode=ParseMode.HTML)
         except Exception as e:
             logger.error("Exception while updating queue")
             await bot.send_message(chat_id=request['chat_id'], text=f"Ошибка при поиске по запросу")

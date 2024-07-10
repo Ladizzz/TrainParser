@@ -1,12 +1,15 @@
 from datetime import datetime
 from aiogram import Router, F
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.chat_action import ChatActionSender
-from create_bot import bot, db
-from keyboards.inline_kbs import go_home_kb, validate_train_kb
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import CallbackQuery, Message
+from aiogram import html
+
+from create_bot import bot, db
 from services.train_service import get_trains
+from keyboards.inline_kbs import go_home_kb, validate_train_kb
 
 
 class TrainSearch(StatesGroup):
@@ -99,14 +102,15 @@ async def validate_search(message: Message, state: FSMContext):
         train_data = search_data['trains_list'][train_index - 1]
         await state.update_data(train_data=train_data)
         await message.answer(text="Проверьте введенные данные:\n\n"
-                                  f"Станиция отправления: <b>{search_data['station_from']}</b>\n"
-                                  f"Станиция назначения: <b>{search_data['station_to']}</b>\n"
-                                  f"Дата: <b>{search_data['date']}</b>\n"
+                                  f"Станиция отправления: <b>{html.quote(search_data['station_from'])}</b>\n"
+                                  f"Станиция назначения: <b>{html.quote(search_data['station_to'])}</b>\n"
+                                  f"Дата: <b>{html.quote(search_data['date'])}</b>\n"
                                   f"Выбранный поезд: <b>{train_data['train_number']} {train_data['train_name']}</b>\n"
                                   f"Отправление: <b>{train_data['train_departure']}</b>\n"
                                   f"Прибытие: <b>{train_data['train_arrival']}</b>\n"
                              ,
-                             reply_markup=validate_train_kb()
+                             reply_markup=validate_train_kb(),
+                             parse_mode=ParseMode.HTML
                              )
         await state.update_data(trains_list=None)
     except Exception as error:

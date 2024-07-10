@@ -1,4 +1,4 @@
-
+import logging
 import lxml.etree
 import lxml.html
 from aiogram.client.session import aiohttp
@@ -8,6 +8,7 @@ from fake_useragent import UserAgent
 async def get_trains(station_from, station_to, date, detailed_response=False):
     # page - full code
     result = []
+    logger = logging.getLogger("get_trains")
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}',
@@ -48,8 +49,8 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
                     train_info = {'index': index, 'train_number': train_number, 'train_name': train_name, 'train_departure': train_departure,
                                   'train_arrival': train_arrival, 'train_duration': train_duration, 'tickets': tickets}
                     result.append(train_info)
-            # print(result)
+            # logger.info(result)
     except Exception as error:
-        print(error)
+        logger.error(error)
         result = None
     return result

@@ -26,11 +26,16 @@ def back_home_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def search_details_kb(train_id):
+def search_details_kb(train_id, status="active"):
     inline_kb_list = [
-        [InlineKeyboardButton(text="❌ Удалить", callback_data=f'delete_{train_id}')],
-        [InlineKeyboardButton(text="⬅️ Назад", callback_data='waiting_list')]
+        [InlineKeyboardButton(text="❌ Удалить", callback_data=f'delete_{train_id}')]
     ]
+
+    if status == "finished":
+        inline_kb_list.append([InlineKeyboardButton(text="🔁 Повторить", callback_data=f'restart_{train_id}')])
+
+    inline_kb_list.append([InlineKeyboardButton(text="⬅️ Назад", callback_data='waiting_list')])
+
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
