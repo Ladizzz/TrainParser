@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -13,9 +15,14 @@ start_router = Router()
 @start_router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    user_data = dict(message.from_user)
     await db["users"].update_one(
         {'id': message.from_user.id},
-        {'$setOnInsert': dict(message.from_user)},
+        {
+            '$set': {**user_data, 'updated_at': timestamp},
+            '$setOnInsert': {'created_at': timestamp}
+        },
         upsert=True
     )
     await message.answer(f'Добро пожаловать, {message.from_user.full_name}',
@@ -33,5 +40,5 @@ async def cmd_home_answer(call: CallbackQuery, state: FSMContext):
 @start_router.callback_query(F.data == 'back_home')
 async def cmd_home_edit_text(call: CallbackQuery):
     await call.message.edit_text(f'Добро пожаловать, {call.from_user.full_name}',
-                              reply_markup=start_kb(call.from_user.id))
+                                 reply_markup=start_kb(call.from_user.id))
     await call.answer()

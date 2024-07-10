@@ -26,13 +26,13 @@ def back_home_kb():
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def search_details_kb(train_id, status="active"):
+def search_details_kb(request_id, status="active"):
     inline_kb_list = [
-        [InlineKeyboardButton(text="❌ Удалить", callback_data=f'delete_{train_id}')]
+        [InlineKeyboardButton(text="❌ Удалить", callback_data=f'delete_{request_id}')]
     ]
 
-    if status == "finished":
-        inline_kb_list.append([InlineKeyboardButton(text="🔁 Повторить", callback_data=f'restart_{train_id}')])
+    if status != "active":
+        inline_kb_list.append([InlineKeyboardButton(text="🔁 Повторить", callback_data=f'restart_{request_id}')])
 
     inline_kb_list.append([InlineKeyboardButton(text="⬅️ Назад", callback_data='waiting_list')])
 
@@ -48,7 +48,7 @@ def search_details_back_kb():
 
 def waiting_list_kb(requests=[]):
     inline_kb_list = [
-        [InlineKeyboardButton(text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}", callback_data=f'train_{request["_id"]}')] for request in requests
+        [InlineKeyboardButton(text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}", callback_data=f'request_{request["_id"]}')] for request in requests
     ]
     inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='go_home')])
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)

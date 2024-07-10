@@ -26,19 +26,21 @@ async def get_waiting_list(call: CallbackQuery):
 
 @list_router.callback_query(F.data.startswith('restart_'))
 async def restart_search(call: CallbackQuery):
-    train_id = call.data.replace('restart_', '')
+    request_id = call.data.replace('restart_', '')
     await db['requests'].update_one(
-        {'_id': train_id},
+        {'_id': ObjectId(request_id)},
         {'$set': {'status': 'active', 'updated_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
     )
+    # await call.message.edit_reply_markup()
+    await call.answer("Статус обновлен")
+    await get_request(call, request_id)
 
-    await call.answer()
 
-
-@list_router.callback_query(F.data.startswith('train_'))
-async def get_train(call: CallbackQuery):
-    train_id = call.data.replace('train_', '')
-    request = await db["requests"].find_one({"_id": ObjectId(train_id)})
+@list_router.callback_query(F.data.startswith('request_'))
+async def get_request(call: CallbackQuery, request_id=None):
+    if not request_id:
+        request_id = call.data.replace('request_', '')
+    request = await db["requests"].find_one({"_id": ObjectId(request_id)})
     await call.message.edit_text(
         text="Детали о поиске:\n\n"
              f"Станиция отправления: <b>{html.quote(request['station_from'])}</b>\n"
@@ -51,7 +53,7 @@ async def get_train(call: CallbackQuery):
              f"Дата создания: <b>{request.get('created_at', None)}</b>\n"
              f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n"
         ,
-        reply_markup=search_details_kb(train_id, request['status']),
+        reply_markup=search_details_kb(request_id, request['status']),
         parse_mode=ParseMode.HTML
     )
     await call.answer()

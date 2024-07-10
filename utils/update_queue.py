@@ -32,7 +32,7 @@ async def update_queue():
                         ans += f"Доступно мест: <b>{ticket['available_seats']}</b>\n"
                     if "prices" in ticket:
                         ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
-                logger.info(f"Trying to send message... ({ans})")
+                logger.info(f"Trying to send message...")
                 await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{ans}", parse_mode=ParseMode.HTML)
         except Exception as e:
             logger.error("Exception while updating queue")
