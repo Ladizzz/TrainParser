@@ -20,7 +20,7 @@ async def cmd_start(message: Message, state: FSMContext):
     await db["users"].update_one(
         {'id': message.from_user.id},
         {
-            '$set': {**user_data, 'updated_at': timestamp},
+            '$set': {**user_data, 'updated_at': timestamp, 'debug_mode': False},
             '$setOnInsert': {'created_at': timestamp}
         },
         upsert=True

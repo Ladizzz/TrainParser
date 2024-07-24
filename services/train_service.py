@@ -11,8 +11,9 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
     logger = logging.getLogger("get_trains")
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}',
+            async with session.get(f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}&allow_badbrowser=1',
                                    headers={'user-agent': UserAgent().random}) as response:
+                # print(await response.text())
                 # make a lxml tree
                 tree = lxml.html.fromstring(await response.text())
                 # print(lxml.html.tostring(tree))

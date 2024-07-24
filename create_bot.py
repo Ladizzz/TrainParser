@@ -1,10 +1,9 @@
 import logging
 
-import certifi
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.mongo import MongoStorage
-from decouple import config
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from decouple import config
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # получаем список администраторов из .env
@@ -22,7 +21,6 @@ scheduler = AsyncIOScheduler(timezone='Europe/Minsk')
 # инициируем объект бота
 bot = Bot(token=config('TOKEN'))
 
-# ca = certifi.where()
 client = AsyncIOMotorClient(config('MONGO_URL'))
 db = client[config('MONGO_NAME')]
 
