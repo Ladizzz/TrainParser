@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from create_bot import admins
+from utils import status_mapping
 
 
 def start_kb(user_telegram_id: int):
@@ -49,7 +50,7 @@ def search_details_back_kb():
 def waiting_list_kb(requests=[]):
     inline_kb_list = [
         [InlineKeyboardButton(
-            text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']}",
+            text=f"{request['station_from']} - {request['station_to']} ({request['date']}) - {request['train_data']['train_number']} - {status_mapping.get(request['status'])}",
             callback_data=f'request_{request["_id"]}')] for request in requests
     ]
     inline_kb_list.append([InlineKeyboardButton(text="На главную", callback_data='go_home')])

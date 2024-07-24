@@ -6,6 +6,8 @@ from handlers.list import list_router
 from handlers.start import start_router
 from handlers.search import search_router
 from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
+
+from middlewares.admins_only import AdminsOnlyMiddleware
 from utils.update_queue import update_queue
 
 
@@ -43,7 +45,8 @@ async def main():
     dp.include_router(list_router)
     dp.include_router(admin_router)
     dp.include_router(error_router)
-
+    # handle only admin events
+    dp.update.middleware(AdminsOnlyMiddleware())
     # регистрация функций
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)

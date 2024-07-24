@@ -9,7 +9,8 @@ async def update_queue():
     logger = logging.getLogger("update_queue")
     requests = await db["requests"].find({"status": "active"}).to_list(None)
     for request in requests:
-        logger.info(f"Active request found: {request}")
+        logger.info(f"Active request found: {request['_id']} {request['station_from']} {request['station_to']} {request['date']}")
+        user = await db["users"].find_one({"id": request['chat_id']})
         try:
             trains_list = await get_trains(request['station_from'], request['station_to'], request['date'], True)
             if not trains_list:
@@ -33,9 +34,12 @@ async def update_queue():
                     if "prices" in ticket:
                         ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
                 logger.info(f"Trying to send message...")
-                await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{ans}", parse_mode=ParseMode.HTML)
+                await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{request['train_data']['train_name']} ({request['date']})\n\n{ans}", parse_mode=ParseMode.HTML)
+            else:
+                logger.info(f"No places found for request {request['_id']}")
+                if user['debug_mode']:
+                    await bot.send_message(chat_id=request['chat_id'], text=f"По запросу {request['_id']} {request['station_from']} {request['station_to']} {request['date']} мест нет")
         except Exception as e:
             logger.error(f"Exception while updating queue: {e}")
-            user = await db["users"].find_one({"id": request['chat_id']})
             if user['debug_mode']:
                 await bot.send_message(chat_id=request['chat_id'], text=f"Ошибка при поиске по запросу: {e}")

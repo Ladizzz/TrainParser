@@ -1,4 +1,6 @@
 import logging
+
+import certifi
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.mongo import MongoStorage
 from decouple import config
@@ -20,6 +22,7 @@ scheduler = AsyncIOScheduler(timezone='Europe/Minsk')
 # инициируем объект бота
 bot = Bot(token=config('TOKEN'))
 
+# ca = certifi.where()
 client = AsyncIOMotorClient(config('MONGO_URL'))
 db = client[config('MONGO_NAME')]
 
