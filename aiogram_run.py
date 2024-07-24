@@ -8,6 +8,7 @@ from handlers.search import search_router
 from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
 
 from middlewares.admins_only import AdminsOnlyMiddleware
+from middlewares.throttling import ThrottlingMiddleware
 from utils.update_queue import update_queue
 
 
@@ -45,6 +46,8 @@ async def main():
     dp.include_router(list_router)
     dp.include_router(admin_router)
     dp.include_router(error_router)
+    # throttling
+    dp.update.middleware(ThrottlingMiddleware())
     # handle only admin events
     dp.update.middleware(AdminsOnlyMiddleware())
     # регистрация функций
