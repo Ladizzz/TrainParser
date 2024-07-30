@@ -10,7 +10,7 @@ from aiogram import html
 
 from create_bot import bot, db
 from services.train_service import get_trains
-from keyboards.inline_kbs import go_home_kb, validate_train_kb
+from keyboards.inline_kbs import go_home_kb, validate_train_kb, price_filter_back_kb
 
 
 class TrainSearch(StatesGroup):
@@ -18,7 +18,10 @@ class TrainSearch(StatesGroup):
     choosing_station_to = State()
     choosing_date = State()
     choosing_train = State()
+    validating_train_number = State()
     validating_search = State()
+    setting_price_filter_from = State()
+    setting_price_filter_to = State()
     finish_search = State()
 
 
@@ -59,7 +62,7 @@ async def choose_date(message: Message, state: FSMContext):
 @search_router.message(
     TrainSearch.choosing_date
 )
-async def validate_search(message: Message, state: FSMContext):
+async def choose_train(message: Message, state: FSMContext):
     try:
         await state.update_data(date=message.text)
         await message.answer(text="Ожидайте, идет поиск поездов...")
@@ -81,7 +84,7 @@ async def validate_search(message: Message, state: FSMContext):
                         await message.answer(text="Доступные поезда:\n\n" + "\n\n".join(formatted_list[:half]))
                         await message.answer(text="\n\n".join(formatted_list[half:]))
                     await message.answer(text="Введите порядковый номер поезда", reply_markup=go_home_kb())
-                    await state.set_state(TrainSearch.validating_search)
+                    await state.set_state(TrainSearch.validating_train_number)
                 else:
                     await message.answer(text="Нет доступных поездов. Проверьте правильность ввода")
                     await state.clear()
@@ -96,30 +99,71 @@ async def validate_search(message: Message, state: FSMContext):
 
 
 @search_router.message(
-    TrainSearch.validating_search
+    TrainSearch.validating_train_number
 )
-async def validate_search(message: Message, state: FSMContext):
-    logger = logging.getLogger("validate_search")
+async def validating_train_number(message: Message, state: FSMContext):
     try:
         train_index = int(message.text)
         search_data = await state.get_data()
         train_data = search_data['trains_list'][train_index - 1]
         await state.update_data(train_data=train_data)
-        await message.answer(text="Проверьте введенные данные:\n\n"
-                                  f"Станиция отправления: <b>{html.quote(search_data['station_from'])}</b>\n"
-                                  f"Станиция назначения: <b>{html.quote(search_data['station_to'])}</b>\n"
-                                  f"Дата: <b>{html.quote(search_data['date'])}</b>\n"
-                                  f"Выбранный поезд: <b>{train_data['train_number']} {train_data['train_name']}</b>\n"
-                                  f"Отправление: <b>{train_data['train_departure']}</b>\n"
-                                  f"Прибытие: <b>{train_data['train_arrival']}</b>\n"
-                             ,
-                             reply_markup=validate_train_kb(),
-                             parse_mode=ParseMode.HTML
-                             )
+        await validate_search_message(message, state)
         await state.update_data(trains_list=None)
+    except Exception:
+        await message.answer(text="Неверный номер")
+
+
+@search_router.message(
+    TrainSearch.validating_search
+)
+async def validate_search_message(message: Message, state: FSMContext):
+    search_data = await state.get_data()
+    # check if search with price filter
+    with_filter = 'price_from' in search_data
+    response_text = await generate_response(search_data)
+    await message.answer(text=response_text,
+                         reply_markup=validate_train_kb(filter_exists=with_filter),
+                         parse_mode=ParseMode.HTML)
+
+
+@search_router.callback_query(F.data == 'back_to_validate_search')
+async def validate_search_call(call: CallbackQuery, state: FSMContext):
+    search_data = await state.get_data()
+    # check if search with price filter
+    with_filter = 'price_from' in search_data
+    response_text = await generate_response(search_data)
+    await call.message.answer(text=response_text,
+                              reply_markup=validate_train_kb(filter_exists=with_filter),
+                              parse_mode=ParseMode.HTML)
+    await call.answer()
+
+
+async def generate_response(search_data):
+    logger = logging.getLogger("generate_response")
+    try:
+        response_text = (
+            f"Проверьте введенные данные:\n\n"
+            f"Станиция отправления: <b>{html.quote(search_data['station_from'])}</b>\n"
+            f"Станиция назначения: <b>{html.quote(search_data['station_to'])}</b>\n"
+            f"Дата: <b>{html.quote(search_data['date'])}</b>\n"
+            f"Выбранный поезд: <b>{search_data['train_data']['train_number']} {search_data['train_data']['train_name']}</b>\n"
+            f"Отправление: <b>{search_data['train_data']['train_departure']}</b>\n"
+            f"Прибытие: <b>{search_data['train_data']['train_arrival']}</b>\n"
+        )
+
+        if 'price_from' in search_data:
+            response_text += (
+                f"Стоимость от: <b>{search_data['price_from']} BYN</b>\n"
+            )
+
+        if 'price_to' in search_data:
+            response_text += (
+                f"Стоимость до: <b>{search_data['price_to']} BYN</b>\n"
+            )
+
+        return response_text
     except Exception as error:
         logger.error(error)
-        await message.answer(text="Неверный номер")
 
 
 @search_router.callback_query(F.data == 'start_search')
@@ -137,3 +181,27 @@ async def start_search(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Спасибо! Ваш запрос принят.', reply_markup=go_home_kb())
     await state.clear()
     await call.answer()
+
+
+@search_router.callback_query(F.data == 'price_filter')
+async def price_filter(call: CallbackQuery, state: FSMContext):
+    await call.message.answer('Введите стоимость от (BYN):', reply_markup=price_filter_back_kb())
+    await state.set_state(TrainSearch.setting_price_filter_from)
+    await call.answer()
+
+
+@search_router.message(
+    TrainSearch.setting_price_filter_from
+)
+async def price_filter(message: Message, state: FSMContext):
+    await state.update_data(price_from=message.text)
+    await message.answer('Введите стоимость до (BYN):', reply_markup=price_filter_back_kb())
+    await state.set_state(TrainSearch.setting_price_filter_to)
+
+
+@search_router.message(
+    TrainSearch.setting_price_filter_to
+)
+async def price_filter(message: Message, state: FSMContext):
+    await state.update_data(price_to=message.text)
+    await validate_search_message(message, state)

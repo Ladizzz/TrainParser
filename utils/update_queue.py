@@ -20,21 +20,28 @@ async def update_queue():
                 (train for train in trains_list if train['train_number'] == request['train_data']['train_number'])
                 , None)
             if 'tickets' in matching_train and matching_train['tickets']:
-                await db['requests'].update_one(
-                    {'_id': request['_id']},
-                    {'$set': {'status': 'finished', 'updated_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
-                )
-                logger.info(f"Request {request['_id']} updated to finished")
                 ans = ""
+                finished = False
                 for ticket in matching_train['tickets']:
-                    if "type" in ticket:
-                        ans += f"Тип: <b>{ticket['type']}</b>\n"
-                    if "available_seats" in ticket:
-                        ans += f"Доступно мест: <b>{ticket['available_seats']}</b>\n"
-                    if "prices" in ticket:
-                        ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
-                logger.info(f"Trying to send message...")
-                await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{request['train_data']['train_name']} ({request['date']})\n\n{ans}", parse_mode=ParseMode.HTML)
+                    if ("prices" not in ticket
+                            or ("prices" in ticket
+                                and ("price_from" not in request or ("price_from" in request and ticket['prices'] >= request['price_from']))
+                                and ("price_to" not in request or ("price_to" in request and ticket['prices'] <= request['price_to'])))):
+                        finished = True
+                        if "type" in ticket:
+                            ans += f"Тип: <b>{ticket['type']}</b>\n"
+                        if "available_seats" in ticket:
+                            ans += f"Доступно мест: <b>{ticket['available_seats']}</b>\n"
+                        if "prices" in ticket:
+                            ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
+                if finished:
+                    await db['requests'].update_one(
+                        {'_id': request['_id']},
+                        {'$set': {'status': 'finished', 'updated_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}
+                    )
+                    logger.info(f"Request {request['_id']} updated to finished")
+                    logger.info(f"Trying to send message...")
+                    await bot.send_message(chat_id=request['chat_id'], text=f"🚨 Найдено\n\n{request['train_data']['train_name']} ({request['date']})\n\n{ans}", parse_mode=ParseMode.HTML)
             else:
                 logger.info(f"No places found for request {request['_id']}")
                 if user['debug_mode']:

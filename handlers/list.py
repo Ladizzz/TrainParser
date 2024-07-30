@@ -41,18 +41,32 @@ async def get_request(call: CallbackQuery, request_id=None):
     if not request_id:
         request_id = call.data.replace('request_', '')
     request = await db["requests"].find_one({"_id": ObjectId(request_id)})
+
+    response_text = (
+        "Детали о поиске:\n\n"
+        f"Станиция отправления: <b>{html.quote(request['station_from'])}</b>\n"
+        f"Станиция назначения: <b>{html.quote(request['station_to'])}</b>\n"
+        f"Дата: <b>{html.quote(request['date'])}</b>\n"
+        f"Выбранный поезд: <b>{request['train_data']['train_number']} {request['train_data']['train_name']}</b>\n"
+        f"Отправление: <b>{request['train_data']['train_departure']}</b>\n"
+        f"Прибытие: <b>{request['train_data']['train_arrival']}</b>\n\n"
+        f"Состояние: <b>{html.quote(status_mapping.get(request['status'], 'Не определено'))}</b>\n"
+        f"Дата создания: <b>{request.get('created_at', None)}</b>\n"
+        f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n"
+    )
+
+    if 'price_from' in request:
+        response_text += (
+            f"Стоимость от: <b>{request['price_from']} BYN</b>\n"
+        )
+
+    if 'price_to' in request:
+        response_text += (
+            f"Стоимость до: <b>{request['price_to']} BYN</b>\n"
+        )
+
     await call.message.edit_text(
-        text="Детали о поиске:\n\n"
-             f"Станиция отправления: <b>{html.quote(request['station_from'])}</b>\n"
-             f"Станиция назначения: <b>{html.quote(request['station_to'])}</b>\n"
-             f"Дата: <b>{html.quote(request['date'])}</b>\n"
-             f"Выбранный поезд: <b>{request['train_data']['train_number']} {request['train_data']['train_name']}</b>\n"
-             f"Отправление: <b>{request['train_data']['train_departure']}</b>\n"
-             f"Прибытие: <b>{request['train_data']['train_arrival']}</b>\n\n"
-             f"Состояние: <b>{html.quote(status_mapping.get(request['status'], 'Не определено'))}</b>\n"
-             f"Дата создания: <b>{request.get('created_at', None)}</b>\n"
-             f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n"
-        ,
+        text=response_text,
         reply_markup=search_details_kb(request_id, request['status']),
         parse_mode=ParseMode.HTML
     )

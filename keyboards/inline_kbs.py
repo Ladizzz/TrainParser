@@ -57,10 +57,24 @@ def waiting_list_kb(requests=[]):
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
 
-def validate_train_kb():
+def validate_train_kb(filter_exists=False):
     inline_kb_list = [
-        [InlineKeyboardButton(text="🔍 Начать поиск", callback_data='start_search')],
-        [InlineKeyboardButton(text="❌ Отмена", callback_data='go_home')]
+        [InlineKeyboardButton(text="🔍 Начать поиск", callback_data='start_search')]
+    ]
+
+    if not filter_exists:
+        inline_kb_list.append([InlineKeyboardButton(text="💵 Добавить фильтр по стоимости", callback_data='price_filter')]),
+    else:
+        inline_kb_list.append([InlineKeyboardButton(text="💵 Изменить фильтр по стоимости", callback_data='price_filter')]),
+
+    inline_kb_list.append([InlineKeyboardButton(text="❌ Отмена", callback_data='go_home')])
+
+    return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
+
+
+def price_filter_back_kb():
+    inline_kb_list = [
+        [InlineKeyboardButton(text="⬅️ Назад", callback_data='back_to_validate_search')]
     ]
     return InlineKeyboardMarkup(inline_keyboard=inline_kb_list)
 
