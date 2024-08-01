@@ -11,8 +11,9 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
     logger = logging.getLogger("get_trains")
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}&allow_badbrowser=1',
-                                   headers={'user-agent': UserAgent().random}) as response:
+            async with session.get(
+                    f'https://pass.rw.by/ru/route/?from={station_from}&to={station_to}&date={date}&allow_badbrowser=1',
+                    headers={'user-agent': UserAgent().random}) as response:
                 # print(await response.text())
                 # make a lxml tree
                 tree = lxml.html.fromstring(await response.text())
@@ -33,7 +34,7 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
                         tickets_raw = data.cssselect('div.sch-table__t-item')
                         for ticket_raw in tickets_raw:
                             # ticket = str(lxml.html.tostring(ticket_raw))
-                            ticket = {}
+                            ticket = {'prices': []}
                             # тип
                             ticket_type_raw = ticket_raw.cssselect('div.sch-table__t-name')
                             if ticket_type_raw[0].text is not None and ticket_type_raw[0].text != ' ':
@@ -44,10 +45,13 @@ async def get_trains(station_from, station_to, date, detailed_response=False):
                                 ticket['available_seats'] = ticket_free_raw[0].text_content().strip()
                             # стоимость
                             ticket_prices_raw = ticket_raw.cssselect('span.ticket-cost')
-                            ticket['prices'] = ticket_prices_raw[0].text_content().strip()
+                            for ticket_price in ticket_prices_raw:
+                                ticket['prices'].append(float(ticket_price.text_content().strip().replace(",", ".")))
+
                             tickets.append(ticket)
 
-                    train_info = {'index': index, 'train_number': train_number, 'train_name': train_name, 'train_departure': train_departure,
+                    train_info = {'index': index, 'train_number': train_number, 'train_name': train_name,
+                                  'train_departure': train_departure,
                                   'train_arrival': train_arrival, 'train_duration': train_duration, 'tickets': tickets}
                     result.append(train_info)
             # logger.info(result)

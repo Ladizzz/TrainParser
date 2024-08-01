@@ -194,14 +194,21 @@ async def price_filter(call: CallbackQuery, state: FSMContext):
     TrainSearch.setting_price_filter_from
 )
 async def price_filter(message: Message, state: FSMContext):
-    await state.update_data(price_from=message.text)
-    await message.answer('Введите стоимость до (BYN):', reply_markup=price_filter_back_kb())
-    await state.set_state(TrainSearch.setting_price_filter_to)
+    try:
+        await state.update_data(price_from=float(message.text))
+        await message.answer('Введите стоимость до (BYN):', reply_markup=price_filter_back_kb())
+        await state.set_state(TrainSearch.setting_price_filter_to)
+    except Exception:
+        await message.answer(text="Неверный ввод")
 
 
 @search_router.message(
     TrainSearch.setting_price_filter_to
 )
 async def price_filter(message: Message, state: FSMContext):
-    await state.update_data(price_to=message.text)
-    await validate_search_message(message, state)
+    try:
+        await state.update_data(price_to=float(message.text))
+        await validate_search_message(message, state)
+    except Exception:
+        await message.answer(text="Неверный ввод")
+

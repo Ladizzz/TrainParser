@@ -25,15 +25,17 @@ async def update_queue():
                 for ticket in matching_train['tickets']:
                     if ("prices" not in ticket
                             or ("prices" in ticket
-                                and ("price_from" not in request or ("price_from" in request and ticket['prices'] >= request['price_from']))
-                                and ("price_to" not in request or ("price_to" in request and ticket['prices'] <= request['price_to'])))):
+                                and ("price_from" not in request
+                                     or ("price_from" in request and any(price >= request['price_from'] for price in ticket['prices'])))
+                                and ("price_to" not in request
+                                     or ("price_to" in request and any(price <= request['price_to'] for price in ticket['prices']))))):
                         finished = True
                         if "type" in ticket:
                             ans += f"Тип: <b>{ticket['type']}</b>\n"
                         if "available_seats" in ticket:
                             ans += f"Доступно мест: <b>{ticket['available_seats']}</b>\n"
                         if "prices" in ticket:
-                            ans += f"Стоимость: <b>{ticket['prices']}</b>\n\n"
+                            ans += f"Стоимость: <b>{', '.join(map(str, ticket['prices']))}</b>\n\n"
                 if finished:
                     await db['requests'].update_one(
                         {'_id': request['_id']},

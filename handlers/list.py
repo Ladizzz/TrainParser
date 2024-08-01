@@ -52,7 +52,7 @@ async def get_request(call: CallbackQuery, request_id=None):
         f"Прибытие: <b>{request['train_data']['train_arrival']}</b>\n\n"
         f"Состояние: <b>{html.quote(status_mapping.get(request['status'], 'Не определено'))}</b>\n"
         f"Дата создания: <b>{request.get('created_at', None)}</b>\n"
-        f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n"
+        f"Дата изменения: <b>{request.get('updated_at', None)}</b>\n\n"
     )
 
     if 'price_from' in request:
