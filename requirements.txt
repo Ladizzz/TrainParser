@@ -1,9 +1,9 @@
-aiogram==3.10.0
+aiogram==3.14.0
 APScheduler==3.10.4
-cachetools==5.4.0
-fake_useragent==1.1.1
-lxml==4.9.2
-motor==3.5.1
-pymongo==4.8.0
+cachetools==5.5.0
+fake_useragent==1.5.1
+lxml==5.3.0
+motor==3.6.0
+pymongo==4.9.2
 python-decouple==3.8
 cssselect==1.2.0

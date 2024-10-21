@@ -8,7 +8,7 @@ def main_kb(user_telegram_id: int):
         [KeyboardButton(text="📚 Лист ожидания")]
     ]
     if user_telegram_id in admins:
-        kb_list.append([KeyboardButton(text="⚙️ Админ панель")])
+        kb_list.append([KeyboardButton(text="⚙️ Администрирование")])
     keyboard = ReplyKeyboardMarkup(
         keyboard=kb_list,
         resize_keyboard=True,

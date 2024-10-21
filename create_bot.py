@@ -9,6 +9,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 # получаем список администраторов из .env
 admins = [int(admin_id) for admin_id in config('ADMINS').split(',')]
 
+users = [int(user_id) for user_id in config('USERS').split(',')]
+
 # настраиваем логирование и выводим в переменную для отдельного использования в нужных местах
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

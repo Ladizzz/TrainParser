@@ -5,10 +5,10 @@ from handlers.error import error_router
 from handlers.list import list_router
 from handlers.start import start_router
 from handlers.search import search_router
-from aiogram.types import BotCommand, BotCommandScopeDefault, ErrorEvent
+from aiogram.types import BotCommand, BotCommandScopeDefault
 
-from middlewares.admins_only import AdminsOnlyMiddleware
 from middlewares.throttling import ThrottlingMiddleware
+from middlewares.users_only import UsersOnlyMiddleware
 from utils.update_queue import update_queue
 
 
@@ -32,7 +32,7 @@ async def start_bot():
 async def stop_bot():
     try:
         for admin_id in admins:
-            await bot.send_message(admin_id, 'Бот остановлен')
+            await bot.send_message(admin_id, 'Я остановлен 😭')
     except:
         pass
 
@@ -48,8 +48,8 @@ async def main():
     dp.include_router(error_router)
     # throttling
     dp.update.middleware(ThrottlingMiddleware())
-    # handle only admin events
-    dp.update.middleware(AdminsOnlyMiddleware())
+    # handle events only from approved users
+    dp.update.middleware(UsersOnlyMiddleware())
     # регистрация функций
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
